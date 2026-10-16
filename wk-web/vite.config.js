@@ -9,8 +9,8 @@ const require = createRequire(import.meta.url)
 
 // 模板中使用到的 antd 组件（无前缀写法，如 <Button>）
 const antdComponents = new Set([
-  'Avatar', 'Alert', 'Breadcrumb', 'BreadcrumbItem', 'Button', 'CheckboxGroup', 'ConfigProvider',
-  'Flex', 'Form', 'FormItem', 'Input', 'InputNumber', 'InputSearch', 'Layout', 'LayoutContent', 'LayoutHeader',
+  'Avatar', 'Alert', 'Breadcrumb', 'BreadcrumbItem', 'Button', 'CheckboxGroup', 'ConfigProvider', 'Dropdown', 'Tooltip',
+  'Flex', 'Form', 'FormItem', 'Input', 'InputNumber', 'InputPassword', 'InputSearch', 'Layout', 'LayoutContent', 'LayoutHeader',
   'LayoutSider', 'Menu', 'MenuItem', 'Modal', 'Pagination', 'Popconfirm', 'RadioGroup', 'Table', 'Tabs', 'TabPane', 'Textarea'
 ])
 

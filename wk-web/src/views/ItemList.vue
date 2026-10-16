@@ -98,6 +98,7 @@ async function save(values) {
     if (mode.value === 'create') {
       await createItem({ ...values, category: category.value })
       pagination.current = 1 // 新增记录排在第 1 页顶部，跳回去让用户看到
+      keyword.value = '' // 清空搜索，避免新记录被关键字过滤看不到
     } else {
       await updateItem(values.id, values)
     }

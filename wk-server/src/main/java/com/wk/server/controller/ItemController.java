@@ -101,6 +101,7 @@ public class ItemController {
 		item.setTitle(request.title().trim());
 		item.setContent(request.content().trim());
 		item.setCategory(request.category());
+		applyExtras(item, request);
 		return ApiResult.ok(itemRepository.save(item));
 	}
 
@@ -113,6 +114,7 @@ public class ItemController {
 		return itemRepository.findById(id).map(item -> {
 			item.setTitle(request.title().trim());
 			item.setContent(request.content().trim());
+			applyExtras(item, request);
 			return ApiResult.ok(itemRepository.save(item));
 		}).orElseGet(() -> ApiResult.fail("记录不存在"));
 	}
@@ -152,7 +154,23 @@ public class ItemController {
 		return null;
 	}
 
-	public record ItemSaveRequest(String title, String content, String category) {
+	// 扩展字段统一填充：create/update 共用，空串转 null 保持库里干净
+	private void applyExtras(Item item, ItemSaveRequest r) {
+		item.setPriority(blankToNull(r.priority()));
+		item.setStatus(blankToNull(r.status()));
+		item.setTags(r.tags() == null ? List.of() : r.tags());
+		item.setOwner(blankToNull(r.owner()));
+		item.setEmail(blankToNull(r.email()));
+		item.setProgress(r.progress() == null ? 0 : Math.min(100, Math.max(0, r.progress())));
+		item.setRemark(blankToNull(r.remark()));
+	}
+
+	private String blankToNull(String s) {
+		return s == null || s.isBlank() ? null : s.trim();
+	}
+
+	public record ItemSaveRequest(String title, String content, String category, String priority, String status,
+			List<String> tags, String owner, String email, Integer progress, String remark) {
 	}
 
 	public record CategoryStats(String category, long total, List<Item> items) {

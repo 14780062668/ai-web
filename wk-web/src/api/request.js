@@ -71,6 +71,14 @@ export async function request(url, { method = 'GET', params, data, timeout = DEF
 
   // HTTP 层错误：优先用后端 msg，其次状态码文案
   if (!res.ok) {
+    // 401：令牌无效或过期，清空后跳登录页（登录接口自身除外，由页面展示错误）
+    if (res.status === 401 && !url.includes('/api/auth/')) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('tokenExpires')
+      if (!location.pathname.startsWith('/login')) {
+        location.href = '/login'
+      }
+    }
     throw new Error(body?.msg || STATUS_TEXT[res.status] || `请求失败（${res.status}）`)
   }
   // 业务层错误：body 为 null（如响应体是 "null"）时视为异常响应，code !== 0 抛业务错误
