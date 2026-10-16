@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, reactive, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { FundOutlined, UserOutlined } from '@ant-design/icons-vue'
 import zhCN from 'ant-design-vue/es/locale/zh_CN'
@@ -22,6 +22,35 @@ function onMenu({ key }) {
   const item = menus.find((menu) => menu.key === key)
   if (item) {
     router.push(item.path)
+  }
+}
+
+// 页签栏：记录打开过的页面（去重），可切换/关闭
+const tabs = reactive([])
+
+watch(
+  () => route.path,
+  () => {
+    if (route.meta.title && !tabs.some((t) => t.path === route.path)) {
+      tabs.push({ path: route.path, title: route.meta.title })
+    }
+  },
+  { immediate: true }
+)
+
+function onTabChange(path) {
+  router.push(path)
+}
+
+function onTabEdit(path, action) {
+  if (action !== 'remove') return
+  const i = tabs.findIndex((t) => t.path === path)
+  if (i === -1) return
+  tabs.splice(i, 1)
+  // 关闭当前页时跳到相邻页签，没有则回首页
+  if (path === route.path) {
+    const next = tabs[i - 1] || tabs[0]
+    router.push(next ? next.path : '/items')
   }
 }
 </script>
@@ -63,6 +92,18 @@ function onMenu({ key }) {
             <span>管理员</span>
           </div>
         </LayoutHeader>
+        <!-- 页签栏：显示打开过的页面，卡片式可关闭（最后一个不可关） -->
+        <Tabs
+          class="tabs-bar"
+          type="editable-card"
+          hide-add
+          size="small"
+          :active-key="route.path"
+          @change="onTabChange"
+          @edit="onTabEdit"
+        >
+          <TabPane v-for="t in tabs" :key="t.path" :tab="t.title" :closable="tabs.length > 1" />
+        </Tabs>
         <LayoutContent class="content">
           <!-- 不加 key：菜单各分类共用 ItemList，切换时复用组件，由组件内 watch category 刷新 -->
           <router-view />
@@ -132,6 +173,18 @@ body,
   // 小屏隐藏时钟，避免头部拥挤
   @media (max-width: 768px) {
     display: none;
+  }
+}
+
+/* 页签栏：固定 40px，贴合 header 下方 */
+.tabs-bar {
+  height: 40px;
+  padding: 0 16px;
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+
+  .ant-tabs-nav {
+    margin-bottom: 0;
   }
 }
 

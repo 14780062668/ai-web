@@ -205,12 +205,12 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  height: calc(100vh - 96px); // 100vh - 头部64 - 内容区上下padding 32
+  height: calc(100vh - 136px); // 100vh - 头部64 - 页签栏40 - 内容区上下padding 32
   min-height: 0;
 
   @media (max-width: 768px) {
     height: auto; // 小屏允许纵向滚动
-    min-height: calc(100vh - 72px);
+    min-height: calc(100vh - 112px); // 100vh - 头部56 - 页签栏40 - 内容区上下padding 16
   }
 }
 

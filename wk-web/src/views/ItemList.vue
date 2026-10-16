@@ -196,12 +196,12 @@ onMounted(loadList)
 .list-panel {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 96px); // 100vh - 头部64 - 内容区上下padding 32
+  height: calc(100vh - 136px); // 100vh - 头部64 - 页签栏40 - 内容区上下padding 32
   min-height: 0;
 
   /* 小屏适配：高度按缩小后的留白重新计算 */
   @media (max-width: 768px) {
-    height: calc(100vh - 72px); // 100vh - 头部56 - 内容区上下padding 16
+    height: calc(100vh - 112px); // 100vh - 头部56 - 页签栏40 - 内容区上下padding 16
   }
 }
 </style>

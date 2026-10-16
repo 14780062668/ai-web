@@ -11,7 +11,7 @@ const require = createRequire(import.meta.url)
 const antdComponents = new Set([
   'Avatar', 'Alert', 'Breadcrumb', 'BreadcrumbItem', 'Button', 'CheckboxGroup', 'ConfigProvider',
   'Flex', 'Form', 'FormItem', 'Input', 'InputNumber', 'InputSearch', 'Layout', 'LayoutContent', 'LayoutHeader',
-  'LayoutSider', 'Menu', 'MenuItem', 'Modal', 'Pagination', 'Popconfirm', 'RadioGroup', 'Table', 'Textarea'
+  'LayoutSider', 'Menu', 'MenuItem', 'Modal', 'Pagination', 'Popconfirm', 'RadioGroup', 'Table', 'Tabs', 'TabPane', 'Textarea'
 ])
 
 const officialResolver = AntDesignVueResolver({ importStyle: 'css' })
