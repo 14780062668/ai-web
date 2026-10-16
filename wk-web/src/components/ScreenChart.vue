@@ -14,11 +14,14 @@ const props = defineProps({
 
 const el = ref(null)
 let chart = null
+let resizeObserver = null
 
 onMounted(() => {
-  // 容器尺寸由父布局 flex 决定，大屏用 transform 缩放无需监听 resize
   chart = echarts.init(el.value)
   chart.setOption(props.option)
+  // 容器尺寸随窗口/侧边栏折叠变化，触发 ECharts 重绘
+  resizeObserver = new ResizeObserver(() => chart && chart.resize())
+  resizeObserver.observe(el.value)
 })
 
 // option 由父组件 computed 每次生成新对象，引用变化即可触发，无需 deep 遍历
@@ -28,6 +31,7 @@ watch(
 )
 
 onUnmounted(() => {
+  resizeObserver?.disconnect()
   chart && chart.dispose()
   chart = null
 })

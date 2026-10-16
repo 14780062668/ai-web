@@ -139,7 +139,8 @@ onMounted(loadList)
 
 <template>
   <div class="panel list-panel">
-    <Flex justify="end" align="center" gap="12px">
+    <!-- 搜索与操作按钮分两行排列，按钮 margin-top 控制行间距 -->
+    <Flex vertical align="start">
       <InputSearch
         v-model:value="keyword"
         placeholder="搜索标题/内容"
@@ -147,7 +148,7 @@ onMounted(loadList)
         style="width: 260px"
         @search="onSearch"
       />
-      <Button type="primary" @click="openCreate">新增</Button>
+      <Button type="primary" style="margin-top: 16px" @click="openCreate">新增</Button>
     </Flex>
     <Alert v-if="error && !mode" style="margin-top: 16px" type="error" :message="error" show-icon />
     <DataTable
@@ -165,12 +166,16 @@ onMounted(loadList)
         <template v-if="column.dataIndex === 'updatedAt'">
           {{ formatTime(row.updatedAt) }}
         </template>
-        <!-- tags 是数组，顿号拼接展示 -->
+        <!-- tags 是数组，顿号拼接展示；空数组显示 - -->
         <template v-else-if="column.dataIndex === 'tags'">
-          {{ (row.tags || []).join('、') }}
+          {{ (row.tags || []).length ? row.tags.join('、') : '-' }}
         </template>
         <template v-else-if="column.dataIndex === 'progress'">
           {{ row.progress ?? 0 }}%
+        </template>
+        <!-- 其余列：null/undefined/空字符串统一显示 - -->
+        <template v-else>
+          {{ row[column.dataIndex] === null || row[column.dataIndex] === undefined || row[column.dataIndex] === '' ? '-' : row[column.dataIndex] }}
         </template>
       </template>
     </DataTable>

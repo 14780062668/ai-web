@@ -6,11 +6,11 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', redirect: '/items' },
-    // 数据大屏：全屏独立页面，懒加载不进入后台首屏包
+    // 数据大屏：懒加载不进入后台首屏包，menu 用于侧边栏高亮
     {
       path: '/screen',
       component: () => import('@/views/Screen.vue'),
-      meta: { title: '数据大屏', fullscreen: true }
+      meta: { title: '数据大屏', menu: 'screen' }
     },
     // 各分类共用 ItemList 组件，通过 meta.category 区分；组件内 watch category 换数据
     ...menus.map((item) => ({

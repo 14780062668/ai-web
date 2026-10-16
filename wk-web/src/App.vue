@@ -28,9 +28,7 @@ function onMenu({ key }) {
 
 <template>
   <ConfigProvider :locale="zhCN" :auto-insert-space-in-button="false">
-    <!-- 大屏等全屏页面：脱离后台布局直接渲染 -->
-    <router-view v-if="route.meta.fullscreen" :key="route.path" />
-    <Layout v-else class="admin">
+    <Layout class="admin">
       <LayoutSider
         class="sider"
         theme="dark"

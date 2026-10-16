@@ -2,23 +2,11 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { fetchStats } from '@/api/items'
 import { menus } from '@/menus'
-import { useClock } from '@/composables/useClock'
 import { formatTime } from '@/utils/format'
 import ScreenChart from '@/components/ScreenChart.vue'
 
-// 设计稿尺寸，整体等比缩放适配各种屏幕
-const DESIGN_W = 1920
-const DESIGN_H = 1080
-const scale = ref(1)
-
 const stats = ref([])
 const loaded = ref(false)
-const nowText = useClock()
-
-// 按宽高比取较小缩放值：保证 1920x1080 舞台完整可见，居中后四边可能留白
-function fit() {
-  scale.value = Math.min(window.innerWidth / DESIGN_W, window.innerHeight / DESIGN_H)
-}
 
 // 聚合接口一次拉回全部大屏数据，按菜单顺序对齐展示结构
 async function load() {
@@ -36,22 +24,23 @@ async function load() {
 
 const totalAll = computed(() => stats.value.reduce((sum, s) => sum + s.total, 0))
 
+// 图表共用坐标轴样式：浅灰网格 + 灰字，贴合 antd 浅色系
+const axisCommon = {
+  axisLine: { lineStyle: { color: '#d9d9d9' } },
+  axisTick: { show: false },
+  axisLabel: { color: '#8c8c8c', fontSize: 13 }
+}
+
 // 柱状图：各分类记录数对比
 const barOption = computed(() => ({
   grid: { left: 50, right: 24, top: 36, bottom: 32 },
   tooltip: { trigger: 'axis' },
-  xAxis: {
-    type: 'category',
-    data: stats.value.map((s) => s.title),
-    axisLine: { lineStyle: { color: 'rgba(64, 196, 255, 0.3)' } },
-    axisTick: { show: false },
-    axisLabel: { color: '#9fd8ff', fontSize: 14 }
-  },
+  xAxis: { type: 'category', data: stats.value.map((s) => s.title), ...axisCommon },
   yAxis: {
     type: 'value',
     minInterval: 1,
-    splitLine: { lineStyle: { color: 'rgba(64, 196, 255, 0.12)' } },
-    axisLabel: { color: '#5b7ba6' }
+    splitLine: { lineStyle: { color: '#f0f0f0' } },
+    axisLabel: { color: '#8c8c8c' }
   },
   series: [
     {
@@ -64,12 +53,12 @@ const barOption = computed(() => ({
           type: 'linear',
           x: 0, y: 0, x2: 0, y2: 1,
           colorStops: [
-            { offset: 0, color: '#4de3ff' },
-            { offset: 1, color: '#1f6feb' }
+            { offset: 0, color: '#69b1ff' },
+            { offset: 1, color: '#1677ff' }
           ]
         }
       },
-      label: { show: true, position: 'top', color: '#4de3ff', fontSize: 16 }
+      label: { show: true, position: 'top', color: '#1677ff', fontSize: 14 }
     }
   ]
 }))
@@ -77,16 +66,16 @@ const barOption = computed(() => ({
 // 环形图：各分类占比
 const pieOption = computed(() => ({
   tooltip: { trigger: 'item' },
-  legend: { bottom: 0, icon: 'circle', textStyle: { color: '#9fd8ff' } },
-  color: ['#4de3ff', '#ffd666', '#7bffb2', '#ff8fa3'],
+  legend: { bottom: 0, icon: 'circle', textStyle: { color: '#595959' } },
+  color: ['#1677ff', '#faad14', '#52c41a', '#eb2f96'],
   series: [
     {
       type: 'pie',
       radius: ['42%', '68%'],
       center: ['50%', '44%'],
-      itemStyle: { borderColor: '#06132b', borderWidth: 2 },
-      label: { color: '#c9e6ff', formatter: '{b}\n{c} 条' },
-      labelLine: { lineStyle: { color: 'rgba(64, 196, 255, 0.4)' } },
+      itemStyle: { borderColor: '#fff', borderWidth: 2 },
+      label: { color: '#595959', formatter: '{b}\n{c} 条' },
+      labelLine: { lineStyle: { color: '#d9d9d9' } },
       data: stats.value.map((s) => ({ name: s.title, value: s.total }))
     }
   ]
@@ -105,18 +94,12 @@ const lineOption = computed(() => {
   return {
     grid: { left: 50, right: 24, top: 36, bottom: 32 },
     tooltip: { trigger: 'axis' },
-    xAxis: {
-      type: 'category',
-      data: days,
-      axisLine: { lineStyle: { color: 'rgba(64, 196, 255, 0.3)' } },
-      axisTick: { show: false },
-      axisLabel: { color: '#9fd8ff', fontSize: 14 }
-    },
+    xAxis: { type: 'category', data: days, ...axisCommon },
     yAxis: {
       type: 'value',
       minInterval: 1,
-      splitLine: { lineStyle: { color: 'rgba(64, 196, 255, 0.12)' } },
-      axisLabel: { color: '#5b7ba6' }
+      splitLine: { lineStyle: { color: '#f0f0f0' } },
+      axisLabel: { color: '#8c8c8c' }
     },
     series: [
       {
@@ -125,15 +108,15 @@ const lineOption = computed(() => {
         smooth: true,
         symbol: 'circle',
         symbolSize: 8,
-        lineStyle: { width: 3, color: '#7bffb2' },
-        itemStyle: { color: '#7bffb2' },
+        lineStyle: { width: 3, color: '#52c41a' },
+        itemStyle: { color: '#52c41a' },
         areaStyle: {
           color: {
             type: 'linear',
             x: 0, y: 0, x2: 0, y2: 1,
             colorStops: [
-              { offset: 0, color: 'rgba(123, 255, 178, 0.35)' },
-              { offset: 1, color: 'rgba(123, 255, 178, 0)' }
+              { offset: 0, color: 'rgba(82, 196, 26, 0.2)' },
+              { offset: 1, color: 'rgba(82, 196, 26, 0)' }
             ]
           }
         }
@@ -157,231 +140,170 @@ const displayList = computed(() => (needScroll.value ? [...recent.value, ...rece
 let refreshTimer = 0
 
 onMounted(() => {
-  fit()
-  window.addEventListener('resize', fit)
   load()
   refreshTimer = setInterval(load, 30000) // 每 30 秒轮询刷新大屏数据
 })
 onUnmounted(() => {
-  window.removeEventListener('resize', fit)
   clearInterval(refreshTimer)
 })
 </script>
 
 <template>
   <div class="screen">
-    <div class="stage" :style="{ transform: `translate(-50%, -50%) scale(${scale})` }">
-      <header class="topbar">
-        <h1 class="title">数据可视化大屏</h1>
-        <span class="time">{{ nowText }}</span>
-      </header>
-      <main class="body">
-        <section class="col side">
-          <div v-for="s in stats" :key="s.key" class="card stat">
-            <div class="stat-title">{{ s.title }}</div>
-            <div class="stat-num">{{ s.total }}</div>
-            <div class="stat-unit">条记录</div>
-          </div>
-        </section>
+    <!-- 顶部统计卡：4 分类 + 总数 -->
+    <div class="stat-row">
+      <div v-for="s in stats" :key="s.key" class="card stat">
+        <div class="stat-title">{{ s.title }}</div>
+        <div class="stat-num">{{ s.total }}</div>
+        <div class="stat-unit">条记录</div>
+      </div>
+      <div class="card stat">
+        <div class="stat-title">记录总数</div>
+        <div class="stat-num total">{{ totalAll }}</div>
+        <div class="stat-unit">条记录</div>
+      </div>
+    </div>
 
-        <section class="col center">
-          <div class="card total-card">
-            <div class="total-label">记录总数</div>
-            <div class="total-num">{{ totalAll }}</div>
-          </div>
-          <div class="card chart-card">
-            <div class="card-title">分类统计</div>
-            <ScreenChart v-if="loaded" :option="barOption" />
-          </div>
-          <div class="card chart-card">
-            <div class="card-title">新增趋势</div>
-            <ScreenChart v-if="loaded" :option="lineOption" />
-          </div>
-        </section>
+    <!-- 中部：柱状图 + 环形图 -->
+    <div class="row">
+      <div class="card chart-card grow">
+        <div class="card-title">分类统计</div>
+        <ScreenChart v-if="loaded" :option="barOption" />
+      </div>
+      <div class="card chart-card">
+        <div class="card-title">分类占比</div>
+        <ScreenChart v-if="loaded" :option="pieOption" />
+      </div>
+    </div>
 
-        <section class="col side">
-          <div class="card pie-card">
-            <div class="card-title">分类占比</div>
-            <ScreenChart v-if="loaded" :option="pieOption" />
-          </div>
-          <div class="card recent-card">
-            <div class="card-title">最新动态</div>
-            <div class="scroll-box">
-              <ul class="scroll-list" :class="{ scrolling: needScroll }">
-                <li v-for="(it, i) in displayList" :key="i">
-                  <span class="tag">{{ it.categoryTitle }}</span>
-                  <span class="txt">{{ it.title }}</span>
-                  <span class="dt">{{ formatTime(it.updatedAt).slice(5, 16) }}</span>
-                </li>
-              </ul>
-              <div v-if="loaded && !recent.length" class="empty">暂无数据</div>
-            </div>
-          </div>
-        </section>
-      </main>
+    <!-- 底部：趋势图 + 最新动态 -->
+    <div class="row">
+      <div class="card chart-card grow">
+        <div class="card-title">新增趋势</div>
+        <ScreenChart v-if="loaded" :option="lineOption" />
+      </div>
+      <div class="card recent-card">
+        <div class="card-title">最新动态</div>
+        <div class="scroll-box">
+          <ul class="scroll-list" :class="{ scrolling: needScroll }">
+            <li v-for="(it, i) in displayList" :key="i">
+              <span class="tag">{{ it.categoryTitle }}</span>
+              <span class="txt">{{ it.title }}</span>
+              <span class="dt">{{ formatTime(it.updatedAt).slice(5, 16) }}</span>
+            </li>
+          </ul>
+          <div v-if="loaded && !recent.length" class="empty">暂无数据</div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped lang="scss">
-// 大屏配色
-$blue: #4de3ff;
-$text-main: #9fd8ff;
-$text-dim: #5b7ba6;
-
-// 发光大数字：统计数值共用样式
-@mixin glow-num($size, $color, $glow, $glow-size: 16px) {
-  font-size: $size;
-  font-weight: 700;
-  line-height: 1;
-  color: $color;
-  font-family: 'Bahnschrift', 'DIN Alternate', monospace;
-  text-shadow: 0 0 $glow-size $glow;
-}
-
+// 与列表页一致的浅色后台风：灰底白卡、antd 主色
 .screen {
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
-  background: radial-gradient(ellipse at center, #0a1f44 0%, #06132b 70%);
-}
-
-/* 设计稿舞台：居中后等比缩放 */
-.stage {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 1920px;
-  height: 1080px;
   display: flex;
   flex-direction: column;
-  transform-origin: center;
+  gap: 16px;
+  height: calc(100vh - 96px); // 100vh - 头部64 - 内容区上下padding 32
+  min-height: 0;
+
+  @media (max-width: 768px) {
+    height: auto; // 小屏允许纵向滚动
+    min-height: calc(100vh - 72px);
+  }
 }
 
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 80px;
-  padding: 0 32px;
-  border-bottom: 1px solid rgba(64, 196, 255, 0.2);
-}
-
-.title {
-  margin: 0;
-  font-size: 34px;
-  letter-spacing: 4px;
-  background: linear-gradient(180deg, #fff, $blue);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.time {
-  font-size: 18px;
-  color: #7ecfff;
-  font-variant-numeric: tabular-nums;
-}
-
-.body {
+.row {
   flex: 1;
   display: flex;
-  gap: 24px;
-  padding: 24px;
+  gap: 16px;
   min-height: 0;
-}
 
-.col {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  min-height: 0;
-}
-
-.side {
-  width: 460px;
-}
-
-.center {
-  flex: 1;
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 }
 
 .card {
-  background: rgba(13, 38, 76, 0.6);
-  border: 1px solid rgba(64, 196, 255, 0.25);
+  background: #fff;
+  border: 1px solid #f0f0f0;
   border-radius: 8px;
-  padding: 20px 24px;
-  box-shadow: inset 0 0 24px rgba(64, 196, 255, 0.06);
+  padding: 16px 20px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .card-title {
-  font-size: 18px;
-  color: $text-main;
-  margin-bottom: 16px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 12px;
   padding-left: 10px;
-  border-left: 3px solid $blue;
+  border-left: 3px solid #1677ff;
 }
 
-/* 左侧统计卡 */
-.stat {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+/* 统计卡：自适应均分一行 */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+}
 
+.stat {
   .stat-title {
-    font-size: 16px;
-    color: $text-main;
+    font-size: 14px;
+    color: #8c8c8c;
   }
 
   .stat-num {
     margin-top: 8px;
-    @include glow-num(52px, $blue, rgba(77, 227, 255, 0.4));
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+    color: #1677ff;
+    font-family: 'Bahnschrift', 'DIN Alternate', monospace;
+    font-variant-numeric: tabular-nums;
+
+    &.total {
+      color: #fa8c16;
+    }
   }
 
   .stat-unit {
     margin-top: 8px;
-    font-size: 13px;
-    color: $text-dim;
+    font-size: 12px;
+    color: #bfbfbf;
   }
 }
 
-/* 中间总数与柱状图 */
-.total-card {
-  text-align: center;
-  padding: 24px 0;
-
-  .total-label {
-    font-size: 18px;
-    color: $text-main;
-  }
-
-  .total-num {
-    margin-top: 8px;
-    @include glow-num(64px, #ffd666, rgba(255, 214, 102, 0.35), 24px);
-  }
-}
-
-/* 图表卡片：标题固定，图表占满剩余空间 */
+/* 图表卡片：标题固定，图表占满剩余空间；grow 让柱/折线图比环形图宽 */
 .chart-card {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 0;
+
+  &.grow {
+    flex: 2;
+  }
+
+  @media (max-width: 768px) {
+    height: 320px;
+    flex: none;
+  }
 }
 
-.pie-card {
-  height: 360px;
-  display: flex;
-  flex-direction: column;
-}
-
-/* 右侧滚动列表 */
+/* 最新动态滚动列表 */
 .recent-card {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 0;
+
+  @media (max-width: 768px) {
+    height: 320px;
+    flex: none;
+  }
 }
 
 .scroll-box {
@@ -409,7 +331,7 @@ $text-dim: #5b7ba6;
     align-items: center;
     gap: 10px;
     height: 44px;
-    border-bottom: 1px dashed rgba(64, 196, 255, 0.15);
+    border-bottom: 1px dashed #f0f0f0;
   }
 }
 
@@ -423,15 +345,16 @@ $text-dim: #5b7ba6;
   flex-shrink: 0;
   padding: 1px 8px;
   font-size: 12px;
-  color: $blue;
-  border: 1px solid rgba(77, 227, 255, 0.4);
+  color: #1677ff;
+  background: #e6f4ff;
+  border: 1px solid #91caff;
   border-radius: 3px;
 }
 
 .txt {
   flex: 1;
-  font-size: 15px;
-  color: #d9ecff;
+  font-size: 14px;
+  color: #1f2937;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -440,13 +363,13 @@ $text-dim: #5b7ba6;
 .dt {
   flex-shrink: 0;
   font-size: 13px;
-  color: $text-dim;
+  color: #8c8c8c;
   font-variant-numeric: tabular-nums;
 }
 
 .empty {
   padding-top: 40px;
   text-align: center;
-  color: $text-dim;
+  color: #bfbfbf;
 }
 </style>
